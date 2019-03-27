@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch dev",
+            "program": "${workspaceFolder}/app/app.js",
+            "args": [ 
+                "--profile=development"
+                , "--operation=mapa_unidade"
+                , "--cd_cliente=1"
+                , "--cd_unidade=1050"
+                , "--cd_fazenda=1"
+                , "--cd_zona=2"
+                , "--cd_talhao=18"
+                , "--cd_operacao=4013"
+                , "--dt_start=2019-01-03 13:47:52"
+                , "--dt_end=2019-02-01 18:43:25"
+            ],
+            "env": { "LD_LIBRARY_PATH" : "/opt/oracle/instantclient_18_3" }
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch operation",
+            "program": "${workspaceFolder}/app/executeOperation.js",
+            "args": [ 
+                "--profile=development"
+                , "--operation=mapa_unidade"
+                , "--cd_cliente=1"
+            ],
+            "env": { "LD_LIBRARY_PATH" : "/opt/oracle/instantclient_18_3" }
+        }
+    ]
+}

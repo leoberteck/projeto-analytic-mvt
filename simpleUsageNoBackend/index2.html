@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title>Display a map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='map'></div>
+    <script>
+
+        const buildTable = (rows) => {
+            var key = Object.keys(rows[0])
+            var values = rows.map((e) => e.map((r => r)) )
+        }
+
+        var selectedTalhaoId = null;
+        const cdCliente = 1
+        const http_instance = axios.create({
+            baseUrl: 'http://localhost:4000/'
+            , timeout: 10000
+        })
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGVvYmVydGVjayIsImEiOiJjamVweHZvazIwMDdmMzNwbmV5amI2bWtlIn0.LZcgYG3OwkroU6A-RNWp8g';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v9',
+            center: [-58.8586705, -13.7203277],
+            zoom: 11.5,
+            maxZoom: 22,
+        });
+
+        var backend = {
+            getEventosTalhao : (unidade, fazenda, zona, talhao, pagina) => 
+                http_instance.get(`/eventos_talhao/${cdCliente}/${unidade}/${fazenda}/${zona}/${talhao}?page=${pagina}`),
+            getEventosRecentes : () => 
+                http_instance.get(`/eventos_talhao/recentes/${cdCliente}`),
+            getLayer : (event, layer) => 
+                http_instance.get(`/layers/${cdCliente}/${event}/${layer}`)
+        }
+
+        map.on('load', () => {
+
+            map.addSource("talhoesSource",
+                {
+                    "type": "vector",
+                    "tiles": [
+                        "http://localhost:3000/3602/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3002/3602/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3003/3602/{z}/{x}/{y}.vector.pbf"
+                    ],
+                    "minzoom": 8,
+                    "maxzoom": 16
+                }
+            )
+
+            map.addLayer({
+                "id": "talhao-border",
+                "type": "line",
+                "source": "talhoesSource",
+                "source-layer": "map",
+                "layout": {
+                    "line-cap": "round",
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-opacity": 1,
+                    "line-color": "#000",
+                    "line-width": [
+                        "interpolate"
+                        , ["linear"], ["zoom"]
+                        , 12, 1
+                        , 16, 5
+                    ]
+                }
+            });
+
+            map.addLayer({
+                "id": "talhao-fill",
+                "type": "fill",
+                "source": "talhoesSource",
+                "source-layer": "map",
+                "layout": {},
+                "paint": {
+                    "fill-color": "#000",
+                    "fill-opacity": ["case",
+                        ["boolean", ["feature-state", "hover"], false],
+                        0.9, 
+                        0.5
+                    ]
+                }
+            });
+
+            map.on("mousemove", "talhao-fill", (e) => {
+                if (e.features.length > 0) {
+                    if (selectedTalhaoId) {
+                        map.setFeatureState({ source: 'talhoesSource', sourceLayer: 'map', id: selectedTalhaoId }, { hover: false });
+                    }
+                    selectedTalhaoId = e.features[0].id;
+                    map.setFeatureState({ source: 'talhoesSource',  sourceLayer: 'map', id: selectedTalhaoId }, { hover: true });
+                }
+            });
+            map.on("mouseleave", "talhao-fill", () => {
+                if (selectedTalhaoId) {
+                    map.setFeatureState({ source: 'talhoesSource', sourceLayer: 'map', id: selectedTalhaoId }, { hover: false });
+                }
+                selectedTalhaoId = null;
+            });
+
+            map.on("click", "talhao-fill", async (e) => {
+                var properties = e.features[0].properties
+                
+            })
+        });
+        map.addControl(new mapboxgl.NavigationControl());
+    </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8' />
+    <title>Display a map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id='map'></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGVvYmVydGVjayIsImEiOiJjamVweHZvazIwMDdmMzNwbmV5amI2bWtlIn0.LZcgYG3OwkroU6A-RNWp8g';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v9',
+            center: [-58.8586705, -13.7203277],
+            zoom: 11.5,
+            maxZoom: 22,
+        });
+
+        map.on('load', () => {
+
+            map.addSource("analyticMapSource",
+                {
+                    "type": "vector",
+                    "tiles": [
+                        "http://localhost:3000/63/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3002/63/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3003/63/{z}/{x}/{y}.vector.pbf"
+                    ],
+                    "minzoom": 8,
+                    "maxzoom": 16
+                }
+            )
+
+            map.addSource("sobreposicaoSource",
+                {
+                    "type": "vector",
+                    "tiles": [
+                        "http://localhost:3000/81/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3002/81/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3003/81/{z}/{x}/{y}.vector.pbf"
+                    ],
+                    "minzoom": 8,
+                    "maxzoom": 16
+                }
+            )
+
+            map.addSource("talhoesSource",
+                {
+                    "type": "vector",
+                    "tiles": [
+                        "http://localhost:3000/64/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3002/64/{z}/{x}/{y}.vector.pbf",
+                        "http://localhost:3003/64/{z}/{x}/{y}.vector.pbf"
+                    ],
+                    "minzoom": 8,
+                    "maxzoom": 16
+                }
+            )
+
+            map.addLayer({
+                "id": "dadosAnaliticosLabel",
+                "type": "symbol",
+                "source": "analyticMapSource",
+                "source-layer": "map",
+                "minzoom": 16,
+                "paint": {
+                    "text-halo-color": "#FFF",
+                    "text-halo-width": 1,
+                    "text-halo-blur": 1
+                },
+                "layout": {
+                    "text-field": '{vlVelocidade}',
+                    "text-font": ["Roboto Condensed Bold"],
+                    "symbol-placement": "line",
+                    "text-justify": "center",
+                    "text-anchor": "center",
+                    "text-size": 14,
+                }
+            });
+
+            // map.addLayer({
+            //     "id": "dadosAnaliticos",
+            //     "type": "line",
+            //     "source": "analyticMapSource",
+            //     "source-layer": "map",
+            //     "layout": {
+            //         "line-cap": "round",
+            //         "line-join": "round"
+            //     },
+            //     "paint": {
+            //         "line-opacity": 1,
+            //         "line-color": [
+            //             "step"
+            //             , ["get", "vlVelocidade"]
+            //             , "#000"
+            //             , 3, "#2334b9"
+            //             , 6, "#0a4b04"
+            //             , 9, "#c021b7"
+            //             , 12, "#f0c60c"
+            //             , 15, "#4b18be"
+            //             , 18, "#f0860c"
+            //             , 21, "#0cf0b9"
+            //             , 24, "#2ec021"
+            //             , 27, "#58360f"
+            //             , 30, "#f00c0c"
+            //         ],
+            //         "line-width": [
+            //             "interpolate"
+            //             , ["linear"], ["zoom"]
+            //             , 12, 1
+            //             , 16, 5
+            //             , 22, 30
+            //         ]
+            //     }
+            // }, "dadosAnaliticosLabel");
+
+            map.addLayer({
+                "id": "dadosAnaliticos",
+                "type": "line",
+                "source": "analyticMapSource",
+                "source-layer": "map",
+                "layout": {
+                    "line-cap":"round", 
+                    "line-join": "round"
+                }, "paint": { 
+                    "line-opacity": 1, 
+                    "line-color": [
+                        "step", ["get", "vlRpm"], 
+                        "#77FA7C"
+                        , 247, "#9D3D87"
+                        , 494, "#7DC1E7"
+                        , 741, "#9B6620"
+                        , 988, "#5BDC22"
+                        , 1235, "#37A8A8"
+                        , 1482, "#033589"
+                        , 1729, "#A67460"
+                        , 1976, "#570637"
+                        , 2223, "#10C3DC"
+                        , 2470, "#C10EAC"
+                    ]
+                , "line-width": [
+                    "interpolate", 
+                    ["linear"], ["zoom"]
+                    , 12, 1
+                    , 16, 5
+                    , 22, 30
+                    ] 
+                }
+            }, "dadosAnaliticosLabel");
+
+            map.addLayer({
+                "id": "dadosSobreposicao",
+                "type": "fill",
+                "source": "sobreposicaoSource",
+                "source-layer": "map",
+                "paint": {
+                    "fill-opacity": 0.6,
+                    "fill-color": '#228b22'
+                }
+                // })
+            }, 'dadosAnaliticos');
+
+            map.addLayer({
+                "id": "talhoes",
+                "type": "line",
+                "source": "talhoesSource",
+                "source-layer": "map",
+                "layout": {
+                    "line-cap": "round",
+                    "line-join": "round"
+                },
+                "paint": {
+                    "line-opacity": 1,
+                    "line-color": "#000",
+                    "line-width": [
+                        "interpolate"
+                        , ["linear"], ["zoom"]
+                        , 12, 1
+                        , 16, 5
+                    ]
+                }
+            // }, "dadosAnaliticos");
+            }, "dadosSobreposicao");
+            // });
+        });
+        map.addControl(new mapboxgl.NavigationControl());
+    </script>
+</body>
+
+</html>

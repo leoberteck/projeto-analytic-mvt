@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceFolder}/app/app.js",
+            "args": [ 
+                "--db_user=SGPA_MAP"
+                , "--db_pass=1337"
+                , "--db_url=localhost:1522/EE"
+                , "--server_port=3000"
+            ],
+            "env": { "LD_LIBRARY_PATH" : "/opt/oracle/instantclient_18_3" }
+        }
+    ]
+}
